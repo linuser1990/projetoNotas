@@ -2,8 +2,9 @@ const express = require('express')
 const app = express()
 const path = require('path')
 const bodyparser = require('body-parser')
-const routeUsers = require('./src/routes/userRoutes')
+const routeUser = require('./src/routes/userRoutes')
 const routeLogin = require('./src/routes/loginRoutes')
+const routeCreateAccount = require('./src/routes/createAccount')
 const session = require('express-session');
 require('dotenv').config()
 
@@ -29,8 +30,9 @@ app.use(session({
   }
 }));
 
+app.use('/createAccount',routeCreateAccount)
 app.use('/login',routeLogin)
-app.use('/user',routeUsers)
+app.use('/user',routeUser)
 
 app.get('/', async (req, res) =>
 {
