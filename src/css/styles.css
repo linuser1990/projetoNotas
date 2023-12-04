@@ -155,7 +155,7 @@
     background: rgb(247, 247, 247);
     border: 1px solid rgba(147, 184, 189,0.8);
     
-    -webkit-box-shadow: 5px;
+    box-shadow: 5px;
     border-radius: 5px;
     
     -webkit-animation-duration: 0.5s;
