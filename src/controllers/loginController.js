@@ -91,12 +91,18 @@ const logoutAccount = async (req, res) => {
   res.redirect('/login')
 }
 
+const createAccount = async (req, res) =>
+{
+  res.render('./colorlib-regform-31/index')
+}
+
 module.exports = {
   showViewLogin,
   validaLogin,
   isAuthenticated,
   isAuthenticatedCreateAccount,
   logoutAccount,
-  addUserToResponse
+  addUserToResponse,
+  createAccount
 
 }

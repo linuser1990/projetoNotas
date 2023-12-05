@@ -30,7 +30,7 @@ app.use(session({
   }
 }));
 
-app.use('/createAccount',routeCreateAccount)
+//app.use('/createAccount',routeCreateAccount)
 app.use('/login',routeLogin)
 app.use('/user',routeUser)
 
