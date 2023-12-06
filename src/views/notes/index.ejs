@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Notes</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #333;
+    }
+
+    #app {
+      width: 80%;
+      max-width: 600px;
+      background-color: #222;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    #header {
+      background-color: #333;
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+
+    #notes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .note {
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 10px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden; /* Para evitar que a data ultrapasse o limite da nota */
+    }
+
+    #footer {
+      background-color: #333;
+      padding: 10px;
+      text-align: center;
+      border-top: 1px solid #444;
+    }
+
+    .note textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: transparent;
+      color: #fff;
+      resize: none;
+      overflow: hidden;
+    }
+
+    .note-date {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 12px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="header">
+      <h2>Google Notes</h2>
+    </div>
+    <div id="notes" onclick="handleNotesClick(event)">
+      <!-- Notas serão preenchidas dinamicamente com JavaScript -->
+    </div>
+    <div id="footer">
+      <button onclick="addNote()">Add Note</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/notes/getnotes')
+        .then(response => response.json())
+        .then(data => {
+          const notesContainer = document.getElementById('notes');
+
+          data.forEach(note => {
+            const newNote = document.createElement('div');
+            newNote.className = 'note';
+
+            // Conteúdo principal da nota
+            newNote.innerHTML = `<p>${note.description}</p>`;
+
+            // Adiciona a data no canto superior direito
+            const dateElement = document.createElement('p');
+            dateElement.className = 'note-date';
+            dateElement.textContent = formatDate(note.date);
+            newNote.appendChild(dateElement);
+
+            attachNoteEvents(newNote);
+            notesContainer.appendChild(newNote);
+          });
+        })
+        .catch(error => console.error('Error fetching notes:', error));
+
+      function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = new Date(dateString).toLocaleDateString(undefined, options);
+        return formattedDate;
+      }
+    });
+
+    let editedNote = null;
+
+    function addNote() {
+      const notesContainer = document.getElementById('notes');
+      const newNote = document.createElement('div');
+      newNote.className = 'note';
+      newNote.innerHTML = '<p>New Note</p>';
+
+      // Adiciona a data no canto superior direito
+      const dateElement = document.createElement('p');
+      dateElement.className = 'note-date';
+      dateElement.textContent = getCurrentDate();
+      newNote.appendChild(dateElement);
+
+      attachNoteEvents(newNote);
+      notesContainer.appendChild(newNote);
+    }
+
+    function editNote(event) {
+      const note = event.currentTarget;
+      const noteContent = note.querySelector('p').textContent;
+
+      editedNote = note;
+
+      note.innerHTML = `<textarea>${noteContent}</textarea>${getNoteDateHTML()}`;
+      const textarea = note.querySelector('textarea');
+      textarea.value = noteContent; // Set textarea value
+      textarea.focus();
+      textarea.addEventListener('blur', () => saveNote());
+    }
+
+    function saveNote() {
+      if (editedNote) {
+        const textarea = editedNote.querySelector('textarea');
+        const newContent = textarea.value;
+
+        // Re-append the date
+        editedNote.innerHTML = `<p>${newContent}</p>${getNoteDateHTML()}`;
+        editedNote = null;
+      }
+    }
+
+    function handleNotesClick(event) {
+      if (editedNote && !editedNote.contains(event.target)) {
+        saveNote();
+      }
+    }
+
+    function attachNoteEvents(note) {
+      note.onclick = (event) => editNote(event);
+    }
+
+    function getCurrentDate() {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const currentDate = new Date().toLocaleDateString(undefined, options);
+      return currentDate;
+    }
+
+    function getNoteDateHTML() {
+      return `<p class="note-date">${getCurrentDate()}</p>`;
+    }
+  </script>
+</body>
+</html>
